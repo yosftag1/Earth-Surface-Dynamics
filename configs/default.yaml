@@ -1,0 +1,31 @@
+data:
+  root: data/OSCD data
+  images_root: data/OSCD data/images/Onera Satellite Change Detection dataset - Images
+  labels_root: data/OSCD data/train_labels/Onera Satellite Change Detection dataset - Train Labels
+  patch_size: 224
+  stride: 56
+  bands: [B02, B03, B04, B05, B06, B07, B08, B8A, B11, B12]
+  num_workers: 0
+
+model:
+  encoder_name: vit_base_patch8_224
+  pretrained: true
+  freeze_blocks_upto: 9
+  embed_dim: 768
+
+training:
+  seed: 42
+  batch_size: 2
+  epochs: 2
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  pos_weight: 10.0
+  amp: true
+  grad_clip: 1.0
+  save_path: best_model.pt
+  ddp_save_path: best_model_ddp.pt
+  use_wandb: false
+
+ddp:
+  backend: nccl
+  find_unused_parameters: false

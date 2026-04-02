@@ -1,0 +1,7 @@
+numpy>=1.25.0
+fastapi>=0.111.0
+uvicorn>=0.30.0
+PyYAML>=6.0.1
+earthengine-api>=1.1.0
+Pillow>=10.0.0
+requests>=2.31.0

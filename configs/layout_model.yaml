@@ -1,0 +1,39 @@
+# Multiclass land layout (Satlas Swin-B RGB + DPR fine-tuned head)
+# Checkpoint: https://huggingface.co/martinkorelic/dpr-zoo-models
+layout:
+  num_classes: 9
+  labels:
+    - water
+    - trees
+    - grass
+    - flooded_vegetation
+    - crops
+    - shrub_and_scrub
+    - built
+    - bare
+    - snow_and_ice
+  label_colors_hex:
+    - "#419bdf" # water (blue)
+    - "#397d49" # trees (green)
+    - "#88b053" # grass (light green)
+    - "#7a87c6" # flooded veg (purple)
+    - "#e49635" # crops (yellow/orange)
+    - "#dfc35a" # shrub (tan)
+    - "#c4281b" # built (red)
+    - "#a59b8f" # bare (grey)
+    - "#b39fe1" # snow (light purple/white)
+
+gee:
+  collection_id: GOOGLE/DYNAMICWORLD/V1
+  season_start_month: 5
+  season_start_day: 1
+  season_end_month: 10
+  season_end_day: 31
+  max_cloud_pct: 20
+  export_scale_m: 10
+  # Guard EE sampleRectangle pixel budget (~512^2 default window in tiling)
+  max_export_dimension: 2048
+
+tiling:
+  patch_size: 512
+  overlap: 32
