@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import numpy as np
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
@@ -10,6 +11,14 @@ from backend import gee_composite as gee
 from backend.layout_service import layout_change_from_arrays, predict_layout_from_array
 
 app = FastAPI(title="EarthWatch Dynamic World Layout Backend", version="0.3.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class LayoutRequest(BaseModel):
