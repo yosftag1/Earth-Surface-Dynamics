@@ -1,13 +1,13 @@
 :root {
   --bg-color: #0d1117;
   --bg-surface: #161b22;
-  --panel-bg: rgba(22, 27, 34, 0.65);
+  --panel-bg: rgba(12, 20, 31, 0.7);
   --glass-border: rgba(255, 255, 255, 0.08);
   --text-primary: #f0f6fc;
-  --text-secondary: #8b949e;
-  --accent: #2f81f7;
-  --accent-hover: #388bfd;
-  --success: #2ea043;
+  --text-secondary: #91a4b7;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --success: #2ec27e;
   --danger: #da3633;
 }
 
@@ -18,10 +18,11 @@
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background-color: var(--bg-color);
-  background-image: radial-gradient(circle at top right, rgba(47, 129, 247, 0.15), transparent 40%),
-                    radial-gradient(circle at bottom left, rgba(46, 160, 67, 0.1), transparent 40%);
+  background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 34%),
+                    radial-gradient(circle at bottom left, rgba(46, 194, 126, 0.12), transparent 38%),
+                    linear-gradient(135deg, rgba(4, 12, 22, 0.96), rgba(11, 21, 34, 0.96));
   color: var(--text-primary);
   line-height: 1.5;
   min-height: 100vh;
@@ -41,11 +42,12 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--glass-border);
-  padding: 1.25rem 2rem;
+  padding: 0.9rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 1000;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
 }
 
 .header-title-group {
@@ -53,11 +55,38 @@ body {
   flex-direction: column;
 }
 
-.glass-header h1 {
-  font-size: 1.4rem;
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.brand-mark {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 16px 28px rgba(4, 12, 22, 0.45));
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.brand-kicker {
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #8fe8ff;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(90deg, #fff, #8b949e);
+}
+
+.glass-header h1 {
+  font-size: 1.28rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  background: linear-gradient(90deg, #ffffff, #cde5ff 52%, #8fe8ff);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -68,8 +97,39 @@ body {
 
 .glass-header p {
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin-top: 0.1rem;
+  font-size: 0.78rem;
+  margin-top: 0;
+  line-height: 1.35;
+  max-width: 38rem;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.78rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(13, 17, 23, 0.6);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.76rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.github-link:hover {
+  border-color: rgba(47, 129, 247, 0.5);
+  background: rgba(47, 129, 247, 0.16);
+  transform: translateY(-1px);
+}
+
+.github-link-floating {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 1200;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
 }
 
 /* Main Layout */
@@ -129,7 +189,7 @@ body {
 .styled-select {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(13, 17, 23, 0.8);
+  background: rgba(5, 12, 20, 0.74);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
   color: var(--text-primary);
@@ -222,7 +282,7 @@ body {
   flex: 1;
   width: 100%;
   height: 100%;
-  background: #0d1117 !important;
+  background: #07111d !important;
 }
 
 /* Override Leaflet UI for dark mode */
@@ -420,3 +480,25 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 .results-overlay::-webkit-scrollbar { width: 4px; }
 .results-overlay::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+@media (max-width: 900px) {
+  .glass-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
+  .brand-mark {
+    width: 50px;
+    height: 50px;
+  }
+
+  .glass-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .glass-header p {
+    font-size: 0.72rem;
+    max-width: none;
+  }
+}

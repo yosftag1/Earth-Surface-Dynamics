@@ -47,10 +47,10 @@ I built this project because the scale of human impact on the planet can be hard
 <table>
   <tr>
     <td align="center">
-      <img src="./assets/rondonia_fishbone_timelapse_ndvi_2000-2024%20(1).gif" alt="Rondonia NDVI Time-Lapse" width="430" />
+      <img src="./assets/rondonia_fishbone_timelapse_ndvi_2000-2024%20(1).gif" alt="Rondonia NDVI Time-Lapse" width="400" />
     </td>
     <td align="center">
-      <img src="./assets/rondonia_fishbone_timelapse_rgb_1985-2024%20(2).gif" alt="Rondonia RGB Time-Lapse" width="430" />
+      <img src="./assets/rondonia_fishbone_timelapse_rgb_1985-2024%20(2).gif" alt="Rondonia RGB Time-Lapse" width="400" />
     </td>
   </tr>
 </table>

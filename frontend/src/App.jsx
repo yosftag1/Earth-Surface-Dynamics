@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { MapContainer, TileLayer, useMapEvents, Rectangle, Pane, useMap } from "react-leaflet"
-import { Activity, Map as MapIcon, ArrowRight, BarChart3, AlertCircle, Layers, Eye, Film } from "lucide-react"
+import { Map as MapIcon, ArrowRight, BarChart3, AlertCircle, Layers, Eye, Film, Github } from "lucide-react"
 
 import TimeSeriesChart    from "./components/TimeSeriesChart"
 import SlideshowWindow    from "./components/SlideshowWindow"
@@ -50,7 +50,7 @@ const boundsFromCenter = (lat, lng, km) => {
 /* ── Non-linear (log) radius scale ─────────────────────────────────
  *
  *  slider raw value: 0 – 100  (integer steps)
- *  radius range:     0.5 – 150 km
+ *  radius range:     0.5 – 300 km
  *
  *  Mapping: radius = 0.5 × 600^(raw/100)
  *    raw=100 → 300 km
@@ -69,6 +69,81 @@ const normalizeSlideshowFrames = (data) => {
     }))
     .filter((f) => Number.isFinite(f.year) && typeof f.tile_url === "string" && f.tile_url.length > 0)
     .sort((a, b) => a.year - b.year)
+}
+
+function AppLogo({ className = "" }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 88 88"
+      role="img"
+      aria-label="Earth Surface Dynamics logo"
+    >
+      <defs>
+        <linearGradient id="logoShell" x1="18" y1="12" x2="70" y2="76" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#8fe8ff" />
+          <stop offset="0.45" stopColor="#3b82f6" />
+          <stop offset="1" stopColor="#10325f" />
+        </linearGradient>
+        <linearGradient id="logoTerrain" x1="18" y1="30" x2="68" y2="58" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#f4dd8c" />
+          <stop offset="0.35" stopColor="#7dd87d" />
+          <stop offset="0.7" stopColor="#1fa37c" />
+          <stop offset="1" stopColor="#115f75" />
+        </linearGradient>
+        <clipPath id="logoClip">
+          <circle cx="44" cy="44" r="26" />
+        </clipPath>
+      </defs>
+
+      <circle cx="44" cy="44" r="31" fill="rgba(3, 10, 18, 0.55)" />
+      <circle cx="44" cy="44" r="28" fill="url(#logoShell)" />
+      <circle cx="44" cy="44" r="26" fill="#09121f" />
+
+      <g clipPath="url(#logoClip)">
+        <rect x="16" y="16" width="56" height="56" fill="#0a1526" />
+        <path
+          d="M10 47C18 39 25 38 33 40C39 41 44 45 51 45C57 45 63 40 78 42V76H10Z"
+          fill="url(#logoTerrain)"
+        />
+        <path
+          d="M12 55C22 49 29 50 36 52C42 54 49 58 56 57C63 56 69 52 76 53"
+          fill="none"
+          stroke="rgba(244,221,140,0.75)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M12 34C21 29 30 30 37 32C44 34 49 38 57 37C64 36 70 31 76 32"
+          fill="none"
+          stroke="rgba(143,232,255,0.48)"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M14 28C22 23 30 22 37 24C44 26 49 30 57 29C64 28 69 24 74 24"
+          fill="none"
+          stroke="rgba(143,232,255,0.28)"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M14 41C23 35 31 35 38 37C45 39 50 43 57 42C64 41 69 37 74 37"
+          fill="none"
+          stroke="rgba(143,232,255,0.34)"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M18 18C27 25 32 31 34 39C36 47 35 57 29 69"
+          fill="none"
+          stroke="rgba(255,255,255,0.16)"
+          strokeWidth="1"
+        />
+      </g>
+      <circle cx="44" cy="44" r="28" fill="none" stroke="rgba(255,255,255,0.1)" />
+    </svg>
+  )
 }
 
 /* ── small map components ─────────────────────────────────────────── */
@@ -274,8 +349,6 @@ export default function App() {
       .sort((x, y) => Math.abs(y.net) - Math.abs(x.net))
   }, [result])
 
-  const isLegacyBefore = yearBefore < 2016
-
   const baseMapObj = BASE_MAPS.find(m => m.id === activeBaseMap) || BASE_MAPS[0]
 
   /* ════════════════════════════════════════ render ══════════════ */
@@ -283,10 +356,16 @@ export default function App() {
     <div className="app-container">
       <header className="glass-header">
         <div className="header-title-group">
-          <h1><Activity size={24} color="var(--accent)" /> EarthWatch Global Dynamic World</h1>
-          <p>Real-Time Deep Learning Land Cover Transitions (1985 – 2024)</p>
+          <div className="brand-row">
+            <AppLogo className="brand-mark" />
+            <div className="brand-copy">
+              <span className="brand-kicker">Earth observation tool</span>
+              <h1>Earth Surface Dynamics</h1>
+              <p>Visualizing how landscapes, cities, water, and vegetation evolve through time</p>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <Layers size={18} color="var(--text-secondary)" />
           <select 
             className="styled-select" 
@@ -320,20 +399,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Legacy notice */}
-            {isLegacyBefore && (
-              <div style={{ background: "rgba(224,168,0,0.08)", border: "1px solid rgba(224,168,0,0.25)",
-                            borderRadius: "6px", padding: "0.7rem" }}>
-                <div style={{ display: "flex", gap: "0.4rem", color: "#e0a800", fontSize: "0.74rem",
-                              fontWeight: 600, alignItems: "center" }}>
-                  <AlertCircle size={13} /> LEGACY MODE – MODIS 500 m + Landsat 30 m
-                </div>
-                <p style={{ fontSize: "0.64rem", color: "var(--text-secondary)", lineHeight: 1.5, margin: "0.3rem 0 0" }}>
-                  Land-cover classes are remapped from IGBP. Satellite imagery uses Landsat 5/7.
-                </p>
-              </div>
-            )}
-
             {/* Radius */}
             <div className="input-group">
               <label style={{ display: "flex", justifyContent: "space-between" }}>
@@ -356,7 +421,7 @@ export default function App() {
                 <span>2 km</span>
                 <span>10 km</span>
                 <span>50 km</span>
-                <span>150 km</span>
+                <span>300 km</span>
               </div>
             </div>
 
@@ -586,6 +651,17 @@ export default function App() {
           onDeleteHistory={deleteFromHistory}
         />
       </main>
+
+      <a
+        className="github-link github-link-floating"
+        href="https://github.com/yosftag1"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Open GitHub profile"
+      >
+        <Github size={16} />
+        yosftag1
+      </a>
 
       {/* ── Slideshow: draggable fixed window over everything ── */}
       {slideshowOpen && (
