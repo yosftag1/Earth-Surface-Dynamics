@@ -1,1 +1,1 @@
-"""Backend service package for inference utilities."""
+"""Backend service package for satellite image analysis and change detection."""

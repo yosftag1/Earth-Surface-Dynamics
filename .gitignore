@@ -1,3 +1,8 @@
 /.venv
 /docs
 /forward-cab-460418-n3-0bcb5300b0be.json
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+__pycache__/
+*.pyc

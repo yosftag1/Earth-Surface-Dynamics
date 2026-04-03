@@ -21,6 +21,15 @@ else:
 # GEE Dynamic World band (1 band containing the class index 0-8)
 GEE_BANDS = ["label"]
 
+DEFAULT_GEE_LAYOUT_SETTINGS: dict[str, Any] = {
+    "season_start_month": 1,
+    "season_start_day": 1,
+    "season_end_month": 12,
+    "season_end_day": 31,
+    "export_scale_m": 10,
+    "max_export_dimension": 2048,
+}
+
 # Dynamic World Classes:
 # 0: water, 1: trees, 2: grass, 3: flooded_vegetation, 4: crops
 # 5: shrub_and_scrub, 6: built, 7: bare, 8: snow_and_ice
@@ -32,29 +41,74 @@ def _repo_root() -> Path:
 
 def load_gee_layout_settings() -> dict[str, Any]:
     cfg_path = _repo_root() / "configs" / "layout_model.yaml"
-    with open(cfg_path, "r", encoding="utf-8") as f:
-        full = yaml.safe_load(f)
-    return full["gee"]
+    if cfg_path.is_file():
+        with open(cfg_path, "r", encoding="utf-8") as f:
+            full = yaml.safe_load(f) or {}
+        if isinstance(full, dict) and "gee" in full and isinstance(full["gee"], dict):
+            return {**DEFAULT_GEE_LAYOUT_SETTINGS, **full["gee"]}
+    return DEFAULT_GEE_LAYOUT_SETTINGS.copy()
+
+
+def _load_service_account_info(key_source: str) -> dict[str, Any]:
+    if key_source.lstrip().startswith("{"):
+        return json.loads(key_source)
+    source_path = Path(key_source)
+    if source_path.is_file():
+        return json.loads(source_path.read_text(encoding="utf-8"))
+    return json.loads(key_source)
+
+
+def _resolve_service_account_source(raw_value: str | None) -> str | None:
+    if not raw_value:
+        return None
+    value = raw_value.strip()
+    if not value:
+        return None
+    if value.lstrip().startswith("{"):
+        return value
+
+    direct_path = Path(value)
+    if direct_path.is_file():
+        return str(direct_path)
+
+    # Render secret files are mounted under /etc/secrets/<filename>
+    secret_path = Path("/etc/secrets") / value
+    if secret_path.is_file():
+        return str(secret_path)
+
+    return value
 
 
 def initialize_earth_engine() -> None:
     if ee is None:
         raise RuntimeError(f"earthengine-api is not installed: {_EE_IMPORT_ERROR}")
-    key_path = os.environ.get("GEE_SERVICE_ACCOUNT_JSON") or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    repo_key_path = _repo_root() / "forward-cab-460418-n3-0bcb5300b0be.json"
+    key_source = _resolve_service_account_source(
+        os.environ.get("GEE_SERVICE_ACCOUNT_JSON")
+        or os.environ.get("GEE_SERVICE_ACCOUNT_FILE")
+        or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+        or (str(repo_key_path) if repo_key_path.is_file() else None)
+    )
     project = os.environ.get("GEE_PROJECT_ID")
     try:
         ee.Initialize(project=project)
         return
     except Exception:
         pass
-    if key_path and Path(key_path).is_file():
-        info = json.loads(Path(key_path).read_text(encoding="utf-8"))
-        email = info.get("client_email")
-        scopes = ['https://www.googleapis.com/auth/earthengine', 'https://www.googleapis.com/auth/cloud-platform']
-        from google.oauth2 import service_account
-        creds = service_account.Credentials.from_service_account_file(key_path).with_scopes(scopes)
-        ee.Initialize(creds, project=project or info.get("project_id"))
-        return
+    if key_source:
+        try:
+            info = _load_service_account_info(key_source)
+        except Exception:
+            info = None
+        if info:
+            scopes = [
+                'https://www.googleapis.com/auth/earthengine',
+                'https://www.googleapis.com/auth/cloud-platform',
+            ]
+            from google.oauth2 import service_account
+            creds = service_account.Credentials.from_service_account_info(info, scopes=scopes)
+            ee.Initialize(creds, project=project or info.get("project_id"))
+            return
     raise RuntimeError(
         "Earth Engine failed to initialize. Run `earthengine authenticate` or set "
         "GEE_SERVICE_ACCOUNT_JSON + GEE_PROJECT_ID (or GOOGLE_APPLICATION_CREDENTIALS)."

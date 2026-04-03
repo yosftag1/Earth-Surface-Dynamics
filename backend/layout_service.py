@@ -3,21 +3,29 @@ from __future__ import annotations
 import base64
 import io
 import numpy as np
-import yaml
-from pathlib import Path
 from typing import Any
 from PIL import Image
 
 from backend.mask_compare import compare_layout_masks
 
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]
-
-
-def load_layout_yaml() -> dict[str, Any]:
-    with open(_repo_root() / "configs" / "layout_model.yaml", "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+# Layout configuration for Google Dynamic World classes (0-8)
+LAYOUT_CONFIG = {
+    "labels": [
+        "Water", "Trees", "Grass", "Crops", "Built", 
+        "Bare", "Snow", "Clouds", "Flooded"
+    ],
+    "label_colors_hex": [
+        "#419bdf",  # Water - blue
+        "#397d49",  # Trees - dark green
+        "#88b053",  # Grass - light green
+        "#e6ce55",  # Crops - yellow
+        "#d52b1f",  # Built - red
+        "#d2b48c",  # Bare - tan
+        "#f0f0f0",  # Snow - white
+        "#e0e0e0",  # Clouds - light gray
+        "#4db8ff",  # Flooded - cyan blue
+    ]
+}
 
 
 def rgba_overlay(class_map: np.ndarray, hex_colors: list[str], alpha: float = 0.55) -> Image.Image:
@@ -47,26 +55,23 @@ def predict_layout_from_array(
     encode_mask_png: bool = False,
 ) -> dict[str, Any]:
     """
-    Since we shifted to Dynamic World, the 'image' array is ALREADY the class map!
-    It comes in from gee_composite.py as shape [1, H, W] containing indices 0-8.
+    Process a Google Dynamic World class map array.
+    The 'image' array should be shape [1, H, W] or [H, W] containing indices 0-8.
     """
-    cfg = load_layout_yaml()
-    layout = cfg["layout"]
-    
     # Strip channel dimension if present
     if image.ndim == 3 and image.shape[0] == 1:
         cmap = image[0].astype(np.int32)
     elif image.ndim == 2:
         cmap = image.astype(np.int32)
     else:
-        raise ValueError(f"Expected array shape [1, H, W] from Dynamic World, got {image.shape}")
+        raise ValueError(f"Expected array shape [1, H, W] or [H, W], got {image.shape}")
 
     result: dict[str, Any] = {
         "height": int(cmap.shape[0]),
         "width": int(cmap.shape[1]),
         "class_map": cmap.tolist(),
-        "labels": layout["labels"],
-        "label_colors_hex": [c.split()[0] for c in layout["label_colors_hex"]],
+        "labels": LAYOUT_CONFIG["labels"],
+        "label_colors_hex": LAYOUT_CONFIG["label_colors_hex"],
         "model": "Google_Dynamic_World_V1",
     }
     
@@ -85,8 +90,6 @@ def layout_change_from_arrays(
     encode_mask_png: bool = True,
     include_dense_transition_map: bool = False,
 ) -> dict[str, Any]:
-    cfg = load_layout_yaml()
-    layout = cfg["layout"]
     
     a = predict_layout_from_array(before, encode_mask_png=encode_mask_png)
     b = predict_layout_from_array(after, encode_mask_png=encode_mask_png)
@@ -97,12 +100,10 @@ def layout_change_from_arrays(
     stats = compare_layout_masks(
         ma,
         mb,
-        layout["labels"],
+        LAYOUT_CONFIG["labels"],
         pixel_size_m=pixel_size_m,
         include_dense_transition_map=include_dense_transition_map,
     )
-    
-    clean_hex = [c.split()[0] for c in layout["label_colors_hex"]]
     
     out: dict[str, Any] = {
         "before": {k: v for k, v in a.items() if k != "class_map"},
@@ -110,8 +111,8 @@ def layout_change_from_arrays(
         "before_class_map": a["class_map"],
         "after_class_map": b["class_map"],
         "change_summary": stats,
-        "labels": layout["labels"],
-        "label_colors_hex": clean_hex,
+        "labels": LAYOUT_CONFIG["labels"],
+        "label_colors_hex": LAYOUT_CONFIG["label_colors_hex"],
     }
     
     if encode_mask_png:

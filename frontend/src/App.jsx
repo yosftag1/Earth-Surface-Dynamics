@@ -7,6 +7,9 @@ import SlideshowWindow    from "./components/SlideshowWindow"
 import EventExplorerPanel from "./components/EventExplorerPanel"
 import EVENT_CATEGORIES from "./data/eventCatalog"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || ""
+const apiUrl = (path) => `${API_BASE_URL}${path}`
+
 /* ── constants ─────────────────────────────────────────────────────── */
 const DW_CLASSES = [
   { id: 0, key: "water",              label: "Water",       color: "#419bdf", icon: "💧" },
@@ -155,7 +158,7 @@ export default function App() {
     setSlideshowOpen(true)
     setSlideshowFrames([])
     try {
-      const res  = await fetch("/api/gee/satellite-timeseries", {
+      const res  = await fetch(apiUrl("/api/gee/satellite-timeseries"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           bbox,
@@ -223,11 +226,11 @@ export default function App() {
     const yAfter = yearsOverride?.yearAfter ?? yearAfter
     try {
       const [rC, rT] = await Promise.all([
-        fetch("/api/gee/layout-change", {
+        fetch(apiUrl("/api/gee/layout-change"), {
           method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ bbox, year_before: yBefore, year_after: yAfter, mask_png: false, scale_m: 10.0 })
         }),
-        fetch("/api/gee/layout-timeseries", {
+        fetch(apiUrl("/api/gee/layout-timeseries"), {
           method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ bbox, year_start: yBefore, year_end: yAfter, scale_m: 10.0 })
         }),

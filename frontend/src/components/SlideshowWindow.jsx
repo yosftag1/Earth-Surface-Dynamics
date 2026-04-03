@@ -10,6 +10,9 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { MapContainer, TileLayer, ImageOverlay, useMap } from "react-leaflet"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || ""
+const apiUrl = (path) => `${API_BASE_URL}${path}`
+
 /* ── constants ─────────────────────────────────────────────────── */
 const SPEEDS = [
   { label: "0.5×", ms: 2000 },
@@ -164,7 +167,7 @@ export default function SlideshowWindow({
     setGifLoading(true)
     try {
       const bbox = [bounds[0][1], bounds[0][0], bounds[1][1], bounds[1][0]]
-      const res = await fetch("/api/gee/timelapse-gif", {
+      const res = await fetch(apiUrl("/api/gee/timelapse-gif"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
