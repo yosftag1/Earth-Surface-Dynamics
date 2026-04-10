@@ -1,5 +1,5 @@
 # 🌍 Earth Surface Dynamics
-
+Live Demo: https://earth-surface-dynamics.onrender.com
 A comprehensive web-based tool for monitoring and analyzing Earth surface changes using satellite imagery and geospatial analysis. This project leverages Google Earth Engine and interactive visualization to track landscape transformations including wildfires, urban expansion, deforestation, and land-use changes.
 
 <img src="./assets/dubai_artifical_expansion_timelapse_rgb_2000-2016.gif" alt="Dubai Coast Urban Expansion Time-Lapse" width="780" />
